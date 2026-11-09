@@ -103,7 +103,7 @@ def main():
     ap.add_argument("--hold", type=float, default=1.5)
     ap.add_argument("--hold-dynamic", type=float, default=2.5)
     ap.add_argument("--rest", type=float, default=2.0)
-    ap.add_argument("--out", default="data")
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
     a = ap.parse_args()
 
     classes = [c.strip().upper() for c in a.classes.split(",") if c.strip()]

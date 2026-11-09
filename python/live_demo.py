@@ -4,7 +4,7 @@ Real-time demo: trains on all collected data, then translates live gestures.
 Hold the REST pose for the first 2 s (calibration), then sign letters.
 Prints each recognised letter and the measured processing latency.
 """
-import argparse, time
+import argparse, os, time
 from collections import deque
 import numpy as np
 import serial
@@ -16,7 +16,7 @@ from collect_data import parse, N_FLEX
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", required=True)
-    ap.add_argument("--data", default="data")
+    ap.add_argument("--data", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
     ap.add_argument("--stable", type=int, default=3, help="same prediction N times before printing")
     a = ap.parse_args()
 

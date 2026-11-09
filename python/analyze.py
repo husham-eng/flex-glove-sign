@@ -97,8 +97,8 @@ def md_table(df):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", default="data")
-    ap.add_argument("--out", default="results")
+    ap.add_argument("--data", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     report, summary = [], {}

@@ -259,8 +259,8 @@ def f(x):
 # ============================ main ===========================================
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", default="data")
-    ap.add_argument("--out", default="results_ml")
+    ap.add_argument("--data", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results_ml"))
     ap.add_argument("--tune", action="store_true", help="nested hyper-parameter tuning (slower)")
     ap.add_argument("--no-deep", action="store_true")
     ap.add_argument("--epochs", type=int, default=150)

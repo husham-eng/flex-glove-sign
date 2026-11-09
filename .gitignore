@@ -3,3 +3,6 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 .venv/
+# local dry-run folders (see home-session guide)
+python/test_data/
+python/test_results/

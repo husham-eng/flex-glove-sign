@@ -69,9 +69,10 @@ Take the glove off and on again between sessions. Recommended: ≥ 2–3 partici
 
 ## 4. Analyse
 ```
-python analyze.py      --data data --out results        # paper tables (drift, ablation, IMU, learning curve, latency)
-python ml_benchmark.py --data data --out results_ml --tune
+python analyze.py                                        # paper tables (drift, ablation, IMU, learning curve, latency)
+python ml_benchmark.py --tune
 ```
+Data are read from `data/` and results written to `results/` and `results_ml/` at the repository root (override with `--data` / `--out`).
 All evaluations use **leave-one-session-out** cross-validation with identical real labels.
 `analyze.py` also writes `tableF_sensor_configuration.csv` (5 fingers vs + abduction vs + elbow
 vs all 7, overall and on U/V/R and G/H/J/P/Q/Z) and `trial_table.csv` (one row per trial: correct
@@ -99,7 +100,7 @@ user-independent (leave-one-subject-out) evaluation; 300-dpi figures.
 
 ## 5. Live demo
 ```
-python live_demo.py --port COM5 --data data
+python live_demo.py --port COM5
 ```
 
 ## Citation
