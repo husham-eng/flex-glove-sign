@@ -1,0 +1,169 @@
+"""
+Real-glove data collection (run on the PC connected to the Arduino by USB).
+
+    pip install pyserial
+    python collect_data.py --port COM5 --subject S1 --session 1
+    python collect_data.py --port /dev/ttyACM0 --subject S1 --session 2 --rounds 10
+
+Protocol (one session):
+  * Put the glove on.  Each ROUND = 2 s REST pose (flat open hand, palm forward, elbow at
+    the same angle every time) followed by every letter once, in a random order.
+  * For each letter: the letter is shown -> GET READY (1.5 s) -> HOLD (recorded).
+    Static letters are held still; J and Z are traced slowly during the HOLD (2.5 s).
+  * After each round a list of the round's trials is shown. You can CORRECT the letter that was
+    actually signed (e.g. "7=V") or DISCARD a bad trial (e.g. "7=x"), then press Enter.
+  * Between sessions TAKE THE GLOVE OFF and put it back on (real session-to-session drift).
+
+Output (one session):
+  data/<subject>_sess<session>.csv         one row per 50 Hz sample (label = correct letter)
+  data/<subject>_sess<session>_trials.csv  one row per trial: prompted letter, CORRECT letter,
+                                           valid flag, note, mean of every sensor.
+                                           You may also edit this file later in Excel;
+                                           the analysis always uses its correct_letter / valid columns.
+"""
+import argparse, csv, os, random, sys, time
+import serial
+
+ALL_ASL = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+DYNAMIC = {"J", "Z"}
+N_FLEX = 7
+SENSORS = ["f%d" % i for i in range(N_FLEX)]          # thumb,index,middle,ring,little,abduction,elbow
+IMU = ["ax", "ay", "az", "gx", "gy", "gz"]
+COLS = ["subject", "session", "round", "trial", "label", "t_ms"] + SENSORS + IMU
+TRIAL_COLS = ["subject", "session", "round", "trial", "prompted_letter", "correct_letter",
+              "valid", "note", "n_samples"] + [f"mean_{s}" for s in SENSORS]
+
+
+def parse(line):
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return None
+    p = line.split(",")
+    if len(p) != 1 + N_FLEX + 6:
+        return None
+    try:
+        return [int(x) for x in p]
+    except ValueError:
+        return None
+
+
+def record(ser, seconds):
+    ser.reset_input_buffer()
+    ser.readline()                      # drop partial line
+    rows, t_end = [], time.time() + seconds
+    while time.time() < t_end:
+        r = parse(ser.readline().decode(errors="ignore"))
+        if r:
+            rows.append(r)
+    return rows
+
+
+def countdown(msg, seconds):
+    sys.stdout.write(f"\r{msg:<45}")
+    sys.stdout.flush()
+    time.sleep(seconds)
+
+
+def review_round(trials):
+    """Show the round's trials; let the user correct letters or discard trials."""
+    print("\n  trial  prompted  correct  mean sensors (f0..f6)")
+    for t in trials:
+        means = " ".join(f"{m:4.0f}" for m in t["means"])
+        print(f"  {t['trial']:5d}  {t['prompted']:^8s}  {t['correct']:^7s}  {means}")
+    while True:
+        cmd = input("  Corrections (e.g. '7=V 9=x', x = discard) or Enter to accept: ").strip()
+        if not cmd:
+            return
+        ok = True
+        for tok in cmd.replace(",", " ").split():
+            try:
+                k, v = tok.split("=")
+                t = next(t for t in trials if t["trial"] == int(k))
+            except Exception:
+                print("   cannot read:", tok); ok = False; continue
+            v = v.strip().upper()
+            if v == "X":
+                t["valid"], t["note"] = 0, "discarded by operator"
+            elif v in ALL_ASL:
+                t["correct"], t["note"] = v, f"relabelled from {t['prompted']}"
+            else:
+                print("   unknown letter:", v); ok = False
+        if ok:
+            return
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--port", required=True)
+    ap.add_argument("--subject", required=True)
+    ap.add_argument("--session", type=int, required=True)
+    ap.add_argument("--rounds", type=int, default=10, help="trials per letter in this session")
+    ap.add_argument("--classes", default=",".join(ALL_ASL))
+    ap.add_argument("--ready", type=float, default=1.5)
+    ap.add_argument("--hold", type=float, default=1.5)
+    ap.add_argument("--hold-dynamic", type=float, default=2.5)
+    ap.add_argument("--rest", type=float, default=2.0)
+    ap.add_argument("--out", default="data")
+    a = ap.parse_args()
+
+    classes = [c.strip().upper() for c in a.classes.split(",") if c.strip()]
+    os.makedirs(a.out, exist_ok=True)
+    path = os.path.join(a.out, f"{a.subject}_sess{a.session}.csv")
+    tpath = path.replace(".csv", "_trials.csv")
+    if os.path.exists(path):
+        sys.exit(f"{path} already exists - choose another --session number.")
+
+    ser = serial.Serial(a.port, 115200, timeout=0.2)
+    print("Opening port (Arduino resets)...")
+    time.sleep(2.5)
+    t0 = time.time()
+    while time.time() - t0 < 3:
+        line = ser.readline().decode(errors="ignore").strip()
+        if line.startswith("# READY"):
+            print("Arduino:", line)
+            break
+    test = record(ser, 0.5)
+    if not test:
+        sys.exit("No data from Arduino (expects 14 values per line). Check port and sketch.")
+    print(f"OK: {len(test)} samples in 0.5 s, first = {test[0]}")
+
+    trial_id = 0
+    with open(path, "w", newline="") as fh, open(tpath, "w", newline="") as th:
+        w, tw = csv.writer(fh), csv.writer(th)
+        w.writerow(COLS); tw.writerow(TRIAL_COLS)
+        for rnd in range(1, a.rounds + 1):
+            cmd = input(f"\n=== Round {rnd}/{a.rounds}: Enter to start (q = quit) === ").strip().lower()
+            if cmd == "q":
+                break
+            countdown("REST: open flat hand, palm forward ...", 1.0)
+            rest_rows = record(ser, a.rest)
+            order = classes[:]
+            random.shuffle(order)
+            trials = []
+            for lab in order:
+                trial_id += 1
+                dyn = lab in DYNAMIC
+                countdown(f"[{rnd}] next:  {lab}   get ready", a.ready)
+                sys.stdout.write(f"\r[{rnd}] >>> {'TRACE' if dyn else 'HOLD'}  {lab}  <<<{'':<20}")
+                sys.stdout.flush()
+                rows = record(ser, a.hold_dynamic if dyn else a.hold)
+                n = max(len(rows), 1)
+                means = [sum(r[1 + i] for r in rows) / n for i in range(N_FLEX)]
+                trials.append(dict(trial=trial_id, prompted=lab, correct=lab, valid=1, note="",
+                                   rows=rows, means=means))
+            review_round(trials)
+            for r in rest_rows:
+                w.writerow([a.subject, a.session, rnd, -1, "REST"] + r)
+            for t in trials:
+                for r in t["rows"]:
+                    w.writerow([a.subject, a.session, rnd, t["trial"], t["correct"]] + r)
+                tw.writerow([a.subject, a.session, rnd, t["trial"], t["prompted"], t["correct"],
+                             t["valid"], t["note"], len(t["rows"])] + [f"{m:.1f}" for m in t["means"]])
+            fh.flush(); th.flush()
+            print(f"Round {rnd} saved.")
+    ser.close()
+    print("Saved:", path, "and", tpath)
+
+
+if __name__ == "__main__":
+    main()
