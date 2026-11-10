@@ -99,7 +99,9 @@ python collect_data.py --port COM5 --subject T1 --session 1 --split test --round
 The program refuses to record a participant code in both groups. `analyze.py` and
 `ml_benchmark.py` use only the training participants (model development);
 the test participants are used once, by `train_test.py`.
-Each letter: 3 s to form it, then 3 s recorded hold. All 26 ASL letters in random order each round (J and Z are traced during a 5 s hold), with a
+Each letter: 3 s to form it, then 3 s recorded hold. With `--manual` (recommended for participants
+new to ASL) the letter and a short hand-shape hint are shown and the program waits for Enter before
+the 3 s recording, so every participant forms the letter at their own pace. All 26 ASL letters in random order each round (J and Z are traced during a 5 s hold), with a
 4 s open-hand REST recording before each round (used for calibration). After every round the
 trials are listed and the operator can correct the letter actually signed (`7=V`) or discard a
 bad trial (`7=x`). Corrections are stored in `data/<subject>_sess<n>_trials.csv`

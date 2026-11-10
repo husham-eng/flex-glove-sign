@@ -15,6 +15,8 @@ Protocol (one session):
     the same angle every time) followed by every letter once, in a random order
     (or A..Z with --order alphabetical).
   * For each letter: the letter is shown -> GET READY (3 s) -> HOLD (3 s, recorded).
+    With --manual the letter and a hand-shape hint are shown and the program waits for Enter
+    (as long as the participant needs); the recorded hold is unchanged.
     Static letters are held still; J and Z are traced slowly during the HOLD (5 s).
   * After each round a list of the round's trials is shown. You can CORRECT the letter that was
     actually signed (e.g. "7=V") or DISCARD a bad trial (e.g. "7=x"), then press Enter.
@@ -32,6 +34,34 @@ import serial
 
 ALL_ASL = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 DYNAMIC = {"J", "Z"}
+HINTS = {   # short hand-shape reminders (ASL fingerspelling, one hand)
+    "A": "fist, thumb straight up along the side of the index",
+    "B": "flat hand, four fingers up together, thumb folded across the palm",
+    "C": "fingers and thumb curved into a C",
+    "D": "index up; middle, ring, little touch the thumb (circle)",
+    "E": "fingertips bent down onto the thumb, thumb tucked under",
+    "F": "index and thumb touch (circle); middle, ring, little up and spread",
+    "G": "index and thumb point SIDEWAYS, parallel; other fingers closed",
+    "H": "index and middle together, pointing SIDEWAYS",
+    "I": "little finger up, others in a fist",
+    "J": "I-shape, then draw a J in the air with the little finger",
+    "K": "index up, middle forward, thumb between them",
+    "L": "thumb and index make an L, others closed",
+    "M": "thumb under index, middle and ring (three fingers over thumb)",
+    "N": "thumb under index and middle (two fingers over thumb)",
+    "O": "all fingertips touch the thumb, making an O",
+    "P": "K-shape pointing DOWN",
+    "Q": "G-shape pointing DOWN",
+    "R": "index and middle up and CROSSED",
+    "S": "fist, thumb across the front of the fingers",
+    "T": "fist, thumb between index and middle",
+    "U": "index and middle up, TOGETHER",
+    "V": "index and middle up, APART",
+    "W": "index, middle and ring up, spread",
+    "X": "index hooked, others in a fist",
+    "Y": "thumb and little finger out, others closed",
+    "Z": "index finger draws a Z in the air",
+}
 N_FLEX = 7
 SENSORS = ["f%d" % i for i in range(N_FLEX)]          # thumb,index,middle,ring,little,abduction,elbow
 IMU = ["ax", "ay", "az", "gx", "gy", "gz"]
@@ -109,6 +139,9 @@ def main():
     ap.add_argument("--hold", type=float, default=3.0)
     ap.add_argument("--hold-dynamic", type=float, default=5.0)
     ap.add_argument("--rest", type=float, default=4.0)
+    ap.add_argument("--manual", action="store_true",
+                    help="wait for Enter before each letter (shows a hand-shape hint); "
+                         "the recorded hold is still --hold / --hold-dynamic seconds")
     ap.add_argument("--split", choices=["train", "test"], default="train",
                     help="train = model-development participants, test = held-out participants")
     ap.add_argument("--order", choices=["random", "alphabetical"], default="random",
@@ -161,9 +194,14 @@ def main():
             for lab in order:
                 trial_id += 1
                 dyn = lab in DYNAMIC
-                countdown(f"[{rnd}] next:  {lab}   get ready", a.ready)
-                sys.stdout.write(f"\r[{rnd}] >>> {'TRACE' if dyn else 'HOLD'}  {lab}  <<<{'':<20}")
-                sys.stdout.flush()
+                if a.manual:
+                    input(f"\n[{rnd}] letter {lab}:  {HINTS.get(lab, '')}\n"
+                          f"      form it{' (start position)' if dyn else ''}, then press Enter ...")
+                    print(f"      >>> {'TRACE' if dyn else 'HOLD STILL'}  {lab}  <<<  recording")
+                else:
+                    countdown(f"[{rnd}] next:  {lab}   get ready", a.ready)
+                    sys.stdout.write(f"\r[{rnd}] >>> {'TRACE' if dyn else 'HOLD'}  {lab}  <<<{'':<20}")
+                    sys.stdout.flush()
                 rows = record(ser, a.hold_dynamic if dyn else a.hold)
                 n = max(len(rows), 1)
                 means = [sum(r[1 + i] for r in rows) / n for i in range(N_FLEX)]
