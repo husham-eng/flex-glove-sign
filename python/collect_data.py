@@ -5,10 +5,10 @@ Real-glove data collection (run on the PC connected to the Arduino by USB).
     python collect_data.py --port COM5 --subject S1 --session 1
     python collect_data.py --port /dev/ttyACM0 --subject S1 --session 2 --rounds 10
 
-    # training participants: fixed alphabetical order A..Z
-    python collect_data.py --port COM5 --subject S1 --session 1 --split train --order alphabetical
-    # held-out test participants (new people): random order
-    python collect_data.py --port COM5 --subject T1 --session 1 --split test --order random
+    # study protocol: 5 training participants x 3 sessions x 10 rounds (random order)
+    python collect_data.py --port COM5 --subject S1 --session 1 --split train
+    # 3 held-out test participants (new people) x 1 session x 5 rounds
+    python collect_data.py --port COM5 --subject T1 --session 1 --split test --rounds 5
 
 Protocol (one session):
   * Put the glove on.  Each ROUND = 2 s REST pose (flat open hand, palm forward, elbow at

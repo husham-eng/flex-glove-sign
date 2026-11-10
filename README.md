@@ -81,14 +81,17 @@ python collect_data.py --port COM5 --subject S1 --session 1 --rounds 10
 
 **Participant protocol (held-out test).**
 
-| Group | Participants | Command options | Letter order |
-|---|---|---|---|
-| Training | 5 (S1–S5) | `--split train --order alphabetical` | A, B, C, … , Z (identical for everyone) |
-| Test | 3 new people (T1–T3) | `--split test --order random` | random, new each round |
+| Group | Participants | Sessions × rounds | Trials per letter | Command options |
+|---|---|---|---|---|
+| Training | 5 (S1–S5) | 3 × 10 (glove re-donned between sessions) | 30 per person, 150 in total | `--split train` |
+| Test | 3 new people (T1–T3) | 1 × 5 | 5 per person, 15 in total | `--split test --rounds 5` |
 
+Letters are presented in a new random order in every round for both groups, so no letter is
+always preceded by the same letter or always recorded at the same point of a round
+(`--order alphabetical` exists but is not used in the study).
 ```
-python collect_data.py --port COM5 --subject S1 --session 1 --split train --order alphabetical
-python collect_data.py --port COM5 --subject T1 --session 1 --split test  --order random
+python collect_data.py --port COM5 --subject S1 --session 1 --split train
+python collect_data.py --port COM5 --subject T1 --session 1 --split test --rounds 5
 ```
 The program refuses to record a participant code in both groups. `analyze.py` and
 `ml_benchmark.py` use only the training participants (model development);

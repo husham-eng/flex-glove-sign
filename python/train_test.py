@@ -6,8 +6,9 @@ Final held-out evaluation: train on the TRAIN participants, test on NEW (TEST) p
     python train_test.py --list                            # show every available model name
 
 Protocol (see README):
-  * TRAIN participants (e.g. S1..S5) were recorded with --split train --order alphabetical.
-  * TEST participants (e.g. T1..T3) are different people, recorded with --split test --order random.
+  * TRAIN participants (S1..S5, 3 sessions x 10 rounds) were recorded with --split train.
+  * TEST participants (T1..T3, 1 session x 5 rounds) are different people, recorded with --split test.
+  * Both groups: random letter order in every round.
   * Every trial is calibrated with the REST pose of its own round (the participant's own baseline),
     so a new user needs only the 2 s open-hand pose - no retraining.
 
