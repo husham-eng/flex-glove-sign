@@ -11,11 +11,11 @@ Real-glove data collection (run on the PC connected to the Arduino by USB).
     python collect_data.py --port COM5 --subject T1 --session 1 --split test --rounds 5
 
 Protocol (one session):
-  * Put the glove on.  Each ROUND = 2 s REST pose (flat open hand, palm forward, elbow at
+  * Put the glove on.  Each ROUND = 4 s REST pose (flat open hand, palm forward, elbow at
     the same angle every time) followed by every letter once, in a random order
     (or A..Z with --order alphabetical).
-  * For each letter: the letter is shown -> GET READY (1.5 s) -> HOLD (recorded).
-    Static letters are held still; J and Z are traced slowly during the HOLD (2.5 s).
+  * For each letter: the letter is shown -> GET READY (3 s) -> HOLD (3 s, recorded).
+    Static letters are held still; J and Z are traced slowly during the HOLD (5 s).
   * After each round a list of the round's trials is shown. You can CORRECT the letter that was
     actually signed (e.g. "7=V") or DISCARD a bad trial (e.g. "7=x"), then press Enter.
   * Between sessions TAKE THE GLOVE OFF and put it back on (real session-to-session drift).
@@ -105,10 +105,10 @@ def main():
     ap.add_argument("--session", type=int, required=True)
     ap.add_argument("--rounds", type=int, default=10, help="trials per letter in this session")
     ap.add_argument("--classes", default=",".join(ALL_ASL))
-    ap.add_argument("--ready", type=float, default=1.5)
-    ap.add_argument("--hold", type=float, default=1.5)
-    ap.add_argument("--hold-dynamic", type=float, default=2.5)
-    ap.add_argument("--rest", type=float, default=2.0)
+    ap.add_argument("--ready", type=float, default=3.0)
+    ap.add_argument("--hold", type=float, default=3.0)
+    ap.add_argument("--hold-dynamic", type=float, default=5.0)
+    ap.add_argument("--rest", type=float, default=4.0)
     ap.add_argument("--split", choices=["train", "test"], default="train",
                     help="train = model-development participants, test = held-out participants")
     ap.add_argument("--order", choices=["random", "alphabetical"], default="random",

@@ -99,8 +99,8 @@ python collect_data.py --port COM5 --subject T1 --session 1 --split test --round
 The program refuses to record a participant code in both groups. `analyze.py` and
 `ml_benchmark.py` use only the training participants (model development);
 the test participants are used once, by `train_test.py`.
-All 26 ASL letters in random order each round (J and Z are traced during a 2.5 s hold), with a
-2 s open-hand REST recording before each round (used for calibration). After every round the
+Each letter: 3 s to form it, then 3 s recorded hold. All 26 ASL letters in random order each round (J and Z are traced during a 5 s hold), with a
+4 s open-hand REST recording before each round (used for calibration). After every round the
 trials are listed and the operator can correct the letter actually signed (`7=V`) or discard a
 bad trial (`7=x`). Corrections are stored in `data/<subject>_sess<n>_trials.csv`
 (`correct_letter`, `valid`, `note`), which can also be edited later; the analysis always uses it.
