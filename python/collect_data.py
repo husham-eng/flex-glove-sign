@@ -91,6 +91,9 @@ def record(ser, seconds):
         r = parse(ser.readline().decode(errors="ignore"))
         if r:
             rows.append(r)
+    # drop stale lines left in the OS serial buffer (timestamp far before the rest)
+    while len(rows) > 1 and rows[1][0] - rows[0][0] > 100:
+        rows.pop(0)
     return rows
 
 

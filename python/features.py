@@ -45,6 +45,8 @@ def load_csvs(folder):
 def resample_window(t, x, n=WIN, skip_s=SKIP_S):
     """Drop the transition, then take n CONSECUTIVE samples (n x 20 ms = 400 ms) from the
     middle of the hold - exactly what the live demo sees."""
+    while len(t) > 1 and t[1] - t[0] > 100:     # stale first sample from the serial buffer
+        t, x = t[1:], x[1:]
     keep = t >= t[0] + skip_s * 1000
     x = x[keep]
     if len(x) < n:
