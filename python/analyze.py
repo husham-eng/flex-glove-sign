@@ -139,7 +139,7 @@ def main():
         "Raw snapshot (no calibration, no features)": (False, False),
         "Calibration only": (True, False),
         "Features only (no calibration)": (False, True),
-        "Full pipeline (calibration + smoothing + 30 features)": (True, True),
+        "Full pipeline (calibration + smoothing + features)": (True, True),
     }
     rows, preds = [], {}
     for sname, (cal, feat) in scen.items():
@@ -169,7 +169,7 @@ def main():
 
     raw_key = ("Raw snapshot (no calibration, no features)", "SVM")
     plot_cm(y, preds[raw_key], names, "Raw snapshot, SVM", os.path.join(a.out, "fig_cm_raw.png"))
-    full = "Full pipeline (calibration + smoothing + 30 features)"
+    full = "Full pipeline (calibration + smoothing + features)"
     best_model = max(models(), key=lambda m: summary["ablation"][f"{full} | {m}"]["acc"])
     cm_full = plot_cm(y, preds[(full, best_model)], names, f"Full pipeline, {best_model}",
                       os.path.join(a.out, "fig_cm_full.png"))

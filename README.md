@@ -4,7 +4,7 @@ Firmware, data-collection protocol, preprocessing and a comprehensive machine-le
 benchmark for a seven-flex-sensor glove that recognises the 26 ASL fingerspelling letters
 (5 finger sensors + 1 index–middle abduction sensor + 1 elbow sensor, optional IMU).
 Accompanies the IEEE PIC 2026 paper *"Enhancing Sign Language Communication Using Machine
-Learning and Smart Circuits"* (O. Alfahad, H. Farouk).
+Learning and Smart Circuits"* (O. Alfahad).
 
 <!-- After the first Zenodo release, paste the DOI badge here -->
 
@@ -17,6 +17,7 @@ python/analyze.py            paper tables: drift, 2x2 ablation, IMU, learning cu
                              effect, per-trial table, latency
 python/ml_benchmark.py       23 ML / deep models, statistical tests, tuning, explainability
 python/live_demo.py          real-time translation + latency measurement
+python/sensor_characterisation.py  bench test of one sensor: hysteresis, repeatability, noise, R range
 figures/                     circuit schematic (and script to redraw it)
 data/                        raw recordings (see data/README.md)
 ```
@@ -55,7 +56,23 @@ its column (f0..f6) should change by roughly 100–300 counts.
 pip install -r requirements.txt
 ```
 
-## 3. Collect data
+## 3. Characterise the sensors (bench test, before mounting)
+For each sensor type (finger 2.2" and, if different, the abduction / elbow sensor):
+```
+cd python
+python sensor_characterisation.py --port COM5 --channel 1 --sensor-name index --r-fixed 47000
+```
+Tape the sensor base next to a protractor. For 3 cycles the script asks for 0 → 30 → 60 → 90°
+(loading) and 90 → 60 → 30 → 0° (unloading); bend, hold still, press Enter (2 s recorded per step).
+It writes `data/characterisation/<name>_ch<k>.csv`, and to `results/characterisation/` a summary
+(span, sensitivity in counts/°, **hysteresis** in counts, % of span and degrees, repeatability,
+noise, R_flex at 0° and 90° computed from the divider, suggested fixed resistor) and the figure
+`fig_hysteresis_<name>.png`.
+
+Also record for the paper: supply current of the whole system (USB power meter or multimeter in
+series, with and without the IMU) and the multimeter values of R_flat / R_bent.
+
+## 4. Collect data
 ```
 cd python
 python collect_data.py --port COM5 --subject S1 --session 1 --rounds 10
@@ -67,7 +84,11 @@ bad trial (`7=x`). Corrections are stored in `data/<subject>_sess<n>_trials.csv`
 (`correct_letter`, `valid`, `note`), which can also be edited later; the analysis always uses it.
 Take the glove off and on again between sessions. Recommended: ≥ 2–3 participants × 3 sessions × 10 rounds.
 
-## 4. Analyse
+Note: every trial is classified from one 400 ms window (20 samples) taken from the middle of the hold.
+For the dynamic letters J and Z this window covers only part of the trace, so their accuracy is a
+known limitation of the static-window design.
+
+## 5. Analyse
 ```
 python analyze.py                                        # paper tables (drift, ablation, IMU, learning curve, latency)
 python ml_benchmark.py --tune
@@ -98,7 +119,7 @@ training / inference time; Friedman and Holm-corrected McNemar tests; nested hyp
 tuning (`--tune`); permutation importance and feature-group ablation; confusion-group analysis;
 user-independent (leave-one-subject-out) evaluation; 300-dpi figures.
 
-## 5. Live demo
+## 6. Live demo
 ```
 python live_demo.py --port COM5
 ```

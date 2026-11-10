@@ -9,9 +9,6 @@ authors:
     given-names: Othman
     affiliation: "Department of Biomedical Technology, Prince Sultan Military College of Health Sciences, Saudi Arabia"
     # orcid: "https://orcid.org/0000-0000-0000-0000"
-  - family-names: Farouk
-    given-names: Husham
-    # orcid: "https://orcid.org/0000-0000-0000-0000"
 keywords:
   - sign language recognition
   - flex sensor

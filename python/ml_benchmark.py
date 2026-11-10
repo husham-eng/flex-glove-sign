@@ -8,7 +8,7 @@ Comprehensive machine-learning benchmark on the REAL glove data.
 
 What it does (all with leave-one-session-out CV, identical real labels):
   1. 18+ supervised models from every major family (linear, probabilistic, instance-based,
-     kernel, single tree, bagging, boosting, neural, ensembles) on the 30/36 features.
+     kernel, single tree, bagging, boosting, neural, ensembles) on the 40 flex features (+6 IMU) of the 7-sensor glove.
   2. Deep temporal models (1D-CNN, LSTM, GRU, CNN-LSTM) on the raw 20-step windows (torch).
   3. Metrics: accuracy, balanced accuracy, macro P/R/F1, Cohen's kappa, top-3 accuracy,
      fold mean ± std, training time, per-sample inference time.
