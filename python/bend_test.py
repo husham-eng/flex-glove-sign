@@ -2,6 +2,7 @@
 Guided bend test of all seven glove channels (wiring check + straight/bent values).
 
     python bend_test.py --port COM3
+    python bend_test.py --port COM3 --only 5,6 --out ../data/characterisation/bend_test_A5A6.csv
     python bend_test.py --analyze ../data/characterisation/bend_test.csv     # re-print only
 
 For each channel the script asks you to RELAX (open flat hand, arm straight) for 3 s and then
@@ -35,6 +36,8 @@ def analyse(df, r_fixed):
     cols = [f"f{i}" for i in range(7)]
     rows = []
     for k, (pin, name, _) in enumerate(MOVES):
+        if k not in set(df.channel):
+            continue
         def steady(phase):
             g = df[(df.channel == k) & (df.phase == phase)].sort_values("t_ms")
             return g[g.t_ms >= g.t_ms.iloc[0] + SKIP_S * 1000][cols].mean()
@@ -67,6 +70,7 @@ def main():
     ap.add_argument("--port")
     ap.add_argument("--r-fixed", type=float, default=47000)
     ap.add_argument("--seconds", type=float, default=3.0)
+    ap.add_argument("--only", help="test only these channels, e.g. 5,6 (A5 and A6)")
     ap.add_argument("--analyze")
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "characterisation", "bend_test.csv"))
     a = ap.parse_args()
@@ -85,7 +89,10 @@ def main():
         sys.exit("No data. Close the Arduino Serial Monitor and check the port.")
     print("Glove on, hand open and flat, arm straight.\n")
     data = []
+    todo = [int(x) for x in a.only.split(",")] if a.only else list(range(7))
     for k, (pin, name, txt) in enumerate(MOVES):
+        if k not in todo:
+            continue
         input(f"[{k + 1}/7] {pin} {name}: press Enter, keep the hand RELAXED ...")
         data += [dict(channel=k, phase="relax", t_ms=r[0], **{f"f{i}": r[1 + i] for i in range(7)})
                  for r in record(ser, a.seconds, parse)]
