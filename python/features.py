@@ -3,6 +3,7 @@ Works with the 5-sensor (f0..f4) and the 7-sensor (f0..f6) glove automatically."
 import glob, os
 import numpy as np
 import pandas as pd
+from scipy.signal import medfilt
 
 SENSOR_NAMES = ["Thumb", "Index", "Middle", "Ring", "Little", "Index-Middle abduction", "Elbow"]
 SENSOR_SHORT = ["thumb", "index", "middle", "ring", "little", "abduction", "elbow"]
@@ -11,6 +12,16 @@ IMU = ["ax", "ay", "az", "gx", "gy", "gz"]
 STATS = ["mean", "std", "max", "min", "roc"]
 WIN = 20            # timesteps per trial (20 x 20 ms = 400 ms)
 SKIP_S = 0.5        # discard the first 0.5 s of each hold (hand still moving)
+MEDIAN_K = 1        # 1 = off. 3 = median filter on every flex channel (removes single-sample
+                    # contact spikes); tested on S1 session 1: lowered accuracy ~4 points, so off
+
+
+def despike(x, k=MEDIAN_K):
+    """Median filter along time for every column of x (n_samples, n_channels)."""
+    x = np.asarray(x, float)
+    if k <= 1 or len(x) < k:
+        return x
+    return np.column_stack([medfilt(x[:, j], k) for j in range(x.shape[1])])
 
 
 def flex_cols(df):
@@ -68,7 +79,9 @@ def build_trials(df):
         key = (sid, g["round"].iloc[0])
         if key not in base.index:
             continue
-        xw = resample_window(g.t_ms.values, g[FLEX + IMU].values.astype(float))
+        vals = g[FLEX + IMU].values.astype(float)
+        vals[:, :len(FLEX)] = despike(vals[:, :len(FLEX)])
+        xw = resample_window(g.t_ms.values, vals)
         if xw is None:
             continue
         S = len(FLEX)

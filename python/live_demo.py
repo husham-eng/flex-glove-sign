@@ -9,7 +9,7 @@ from collections import deque
 import numpy as np
 import serial
 from sklearn.ensemble import RandomForestClassifier
-from features import load_csvs, build_trials, make_X, has_imu, flex_features, imu_features
+from features import load_csvs, build_trials, make_X, has_imu, flex_features, imu_features, despike
 from collect_data import parse, N_FLEX
 
 
@@ -45,7 +45,7 @@ def main():
         if len(buf) < 20 or n % 5: continue          # predict every 100 ms
         t0 = time.perf_counter()
         w = np.array(buf, dtype=float)
-        f = flex_features(w[:, 1:1 + N_FLEX] - base)
+        f = flex_features(despike(w[:, 1:1 + N_FLEX]) - base)
         if use_imu: f = np.concatenate([f, imu_features(w[:, 1 + N_FLEX:7 + N_FLEX])])
         pred = model.predict(f[None, :])[0]
         ms = (time.perf_counter() - t0) * 1000
