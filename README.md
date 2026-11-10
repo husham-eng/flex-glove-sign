@@ -19,6 +19,7 @@ python/ml_benchmark.py       23 ML / deep models, statistical tests, tuning, exp
 python/train_test.py         final test: train on TRAIN participants, test on new TEST participants
 python/live_demo.py          real-time translation + latency measurement
 python/sensor_characterisation.py  bench test of one sensor: hysteresis, repeatability, noise, R range
+python/bend_test.py          guided wiring check: straight/bent value, crosstalk, best resistor per channel
 figures/                     circuit schematic (and script to redraw it)
 data/                        raw recordings (see data/README.md)
 ```
@@ -51,6 +52,8 @@ how the hand is held).
 
 Test: upload the sketch, open the Serial Monitor at 115200 baud and bend each finger;
 its column (f0..f6) should change by roughly 100–300 counts.
+Or, with the Serial Monitor closed: `python bend_test.py --port COM3` (guided, saves a CSV and
+prints straight/bent ADC, crosstalk and the best fixed resistor for every channel).
 
 ## 2. Install
 ```
