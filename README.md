@@ -97,6 +97,8 @@ always preceded by the same letter or always recorded at the same point of a rou
 python collect_data.py --port COM5 --subject S1 --session 1 --split train
 python collect_data.py --port COM5 --subject T1 --session 1 --split test --rounds 5
 ```
+If a glove fault interrupts a session, repair it and continue the same session with `--resume`;
+exclude the faulty round with `python quality.py ../data/S1_sess2.csv --discard 5 --reason "A2 wire open"`.
 After every round an automatic glove check is printed (open wire, touching wires, loose joint,
 broken or non-responding sensor); `python quality.py ../data/S1_sess2.csv` re-checks a saved session.
 The program refuses to record a participant code in both groups. `analyze.py` and

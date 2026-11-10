@@ -31,6 +31,7 @@ Output (one session):
 """
 import argparse, csv, glob, os, random, sys, time
 import numpy as np
+import pandas as pd
 import serial
 from quality import check_round, report
 
@@ -147,6 +148,8 @@ def main():
     ap.add_argument("--manual", action="store_true",
                     help="wait for Enter before each letter (shows a hand-shape hint); "
                          "the recorded hold is still --hold / --hold-dynamic seconds")
+    ap.add_argument("--resume", action="store_true",
+                    help="continue an existing session file (after a break or a glove repair)")
     ap.add_argument("--split", choices=["train", "test"], default="train",
                     help="train = model-development participants, test = held-out participants")
     ap.add_argument("--order", choices=["random", "alphabetical"], default="random",
@@ -158,8 +161,19 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     path = os.path.join(a.out, f"{a.subject}_sess{a.session}.csv")
     tpath = path.replace(".csv", "_trials.csv")
+    start_round, trial_id, ref_rest = 1, 0, None
     if os.path.exists(path):
-        sys.exit(f"{path} already exists - choose another --session number.")
+        if not a.resume:
+            sys.exit(f"{path} already exists - choose another --session number, "
+                     f"or add --resume to continue this session after a break or a repair.")
+        old = pd.read_csv(path)
+        start_round = int(old["round"].max()) + 1
+        trial_id = int(old["trial"].max())
+        r1 = old[(old["round"] == old["round"].min()) & (old.label == "REST")]
+        if len(r1):
+            ref_rest = r1[[f"f{i}" for i in range(N_FLEX)]].values.mean(0)
+        print(f"Resuming {path}: {start_round - 1} round(s) already recorded, "
+              f"continuing with round {start_round} of {a.rounds}.")
     for other in glob.glob(os.path.join(a.out, f"{a.subject}_sess*.csv")):
         if other.endswith("_trials.csv"):
             continue
@@ -184,12 +198,12 @@ def main():
         sys.exit("No data from Arduino (expects 14 values per line). Check port and sketch.")
     print(f"OK: {len(test)} samples in 0.5 s, first = {test[0]}")
 
-    trial_id = 0
-    ref_rest = None
-    with open(path, "w", newline="") as fh, open(tpath, "w", newline="") as th:
+    mode = "a" if start_round > 1 else "w"
+    with open(path, mode, newline="") as fh, open(tpath, mode, newline="") as th:
         w, tw = csv.writer(fh), csv.writer(th)
-        w.writerow(COLS); tw.writerow(TRIAL_COLS)
-        for rnd in range(1, a.rounds + 1):
+        if mode == "w":
+            w.writerow(COLS); tw.writerow(TRIAL_COLS)
+        for rnd in range(start_round, a.rounds + 1):
             cmd = input(f"\n=== Round {rnd}/{a.rounds}: Enter to start (q = quit) === ").strip().lower()
             if cmd == "q":
                 break
