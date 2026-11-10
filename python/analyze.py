@@ -27,7 +27,7 @@ from sklearn.model_selection import LeaveOneGroupOut, StratifiedGroupKFold
 from sklearn.metrics import (accuracy_score, precision_recall_fscore_support,
                              confusion_matrix, adjusted_rand_score)
 from xgboost import XGBClassifier
-from features import (load_csvs, build_trials, make_X, has_imu, flex_features, imu_features,
+from features import (load_csvs, build_trials, development_only, make_X, has_imu, flex_features, imu_features,
                       SENSOR_NAMES, N_FINGERS)
 
 warnings.filterwarnings("ignore")
@@ -99,12 +99,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results"))
+    ap.add_argument("--include-test", action="store_true",
+                    help="also use held-out test participants (normally excluded)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     report, summary = [], {}
 
     df = load_csvs(a.data)
-    tr = build_trials(df)
+    tr, note = development_only(build_trials(df), a.include_test)
+    if note: print(note)
     le = LabelEncoder().fit(tr["y"])
     y = le.transform(tr["y"]); names = list(le.classes_)
     folds, scheme = splits(tr, y)

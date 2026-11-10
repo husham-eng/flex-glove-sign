@@ -5,9 +5,15 @@ Real-glove data collection (run on the PC connected to the Arduino by USB).
     python collect_data.py --port COM5 --subject S1 --session 1
     python collect_data.py --port /dev/ttyACM0 --subject S1 --session 2 --rounds 10
 
+    # training participants: fixed alphabetical order A..Z
+    python collect_data.py --port COM5 --subject S1 --session 1 --split train --order alphabetical
+    # held-out test participants (new people): random order
+    python collect_data.py --port COM5 --subject T1 --session 1 --split test --order random
+
 Protocol (one session):
   * Put the glove on.  Each ROUND = 2 s REST pose (flat open hand, palm forward, elbow at
-    the same angle every time) followed by every letter once, in a random order.
+    the same angle every time) followed by every letter once, in a random order
+    (or A..Z with --order alphabetical).
   * For each letter: the letter is shown -> GET READY (1.5 s) -> HOLD (recorded).
     Static letters are held still; J and Z are traced slowly during the HOLD (2.5 s).
   * After each round a list of the round's trials is shown. You can CORRECT the letter that was
@@ -21,7 +27,7 @@ Output (one session):
                                            You may also edit this file later in Excel;
                                            the analysis always uses its correct_letter / valid columns.
 """
-import argparse, csv, os, random, sys, time
+import argparse, csv, glob, os, random, sys, time
 import serial
 
 ALL_ASL = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -29,8 +35,8 @@ DYNAMIC = {"J", "Z"}
 N_FLEX = 7
 SENSORS = ["f%d" % i for i in range(N_FLEX)]          # thumb,index,middle,ring,little,abduction,elbow
 IMU = ["ax", "ay", "az", "gx", "gy", "gz"]
-COLS = ["subject", "session", "round", "trial", "label", "t_ms"] + SENSORS + IMU
-TRIAL_COLS = ["subject", "session", "round", "trial", "prompted_letter", "correct_letter",
+COLS = ["subject", "session", "split", "round", "trial", "label", "t_ms"] + SENSORS + IMU
+TRIAL_COLS = ["subject", "session", "split", "round", "trial", "prompted_letter", "correct_letter",
               "valid", "note", "n_samples"] + [f"mean_{s}" for s in SENSORS]
 
 
@@ -103,6 +109,10 @@ def main():
     ap.add_argument("--hold", type=float, default=1.5)
     ap.add_argument("--hold-dynamic", type=float, default=2.5)
     ap.add_argument("--rest", type=float, default=2.0)
+    ap.add_argument("--split", choices=["train", "test"], default="train",
+                    help="train = model-development participants, test = held-out participants")
+    ap.add_argument("--order", choices=["random", "alphabetical"], default="random",
+                    help="letter order inside each round")
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"))
     a = ap.parse_args()
 
@@ -112,6 +122,15 @@ def main():
     tpath = path.replace(".csv", "_trials.csv")
     if os.path.exists(path):
         sys.exit(f"{path} already exists - choose another --session number.")
+    for other in glob.glob(os.path.join(a.out, f"{a.subject}_sess*.csv")):
+        if other.endswith("_trials.csv"):
+            continue
+        with open(other) as oh:
+            hdr = oh.readline().strip().split(","); row = oh.readline().strip().split(",")
+        if "split" in hdr and len(row) == len(hdr) and row[hdr.index("split")] != a.split:
+            sys.exit(f"{a.subject} was recorded as '{row[hdr.index('split')]}' in {other}; "
+                     f"a participant cannot be in both train and test.")
+    print(f"Subject {a.subject}, session {a.session}, split = {a.split}, order = {a.order}")
 
     ser = serial.Serial(a.port, 115200, timeout=0.2)
     print("Opening port (Arduino resets)...")
@@ -137,8 +156,7 @@ def main():
                 break
             countdown("REST: open flat hand, palm forward ...", 1.0)
             rest_rows = record(ser, a.rest)
-            order = classes[:]
-            random.shuffle(order)
+            order = sorted(classes) if a.order == "alphabetical" else random.sample(classes, len(classes))
             trials = []
             for lab in order:
                 trial_id += 1
@@ -153,11 +171,11 @@ def main():
                                    rows=rows, means=means))
             review_round(trials)
             for r in rest_rows:
-                w.writerow([a.subject, a.session, rnd, -1, "REST"] + r)
+                w.writerow([a.subject, a.session, a.split, rnd, -1, "REST"] + r)
             for t in trials:
                 for r in t["rows"]:
-                    w.writerow([a.subject, a.session, rnd, t["trial"], t["correct"]] + r)
-                tw.writerow([a.subject, a.session, rnd, t["trial"], t["prompted"], t["correct"],
+                    w.writerow([a.subject, a.session, a.split, rnd, t["trial"], t["correct"]] + r)
+                tw.writerow([a.subject, a.session, a.split, rnd, t["trial"], t["prompted"], t["correct"],
                              t["valid"], t["note"], len(t["rows"])] + [f"{m:.1f}" for m in t["means"]])
             fh.flush(); th.flush()
             print(f"Round {rnd} saved.")

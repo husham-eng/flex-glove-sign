@@ -34,6 +34,8 @@ def load_csvs(folder):
             m = d.trial > 0
             d.loc[m, "label"] = d.loc[m, "trial"].map(fix).fillna(d.loc[m, "label"])
             d = d[~d.trial.isin(bad)]
+        if "split" not in d.columns:
+            d["split"] = "train"          # files recorded before the train/test protocol
         parts.append(d)
     df = pd.concat(parts, ignore_index=True)
     df["sess_id"] = df["subject"].astype(str) + "_s" + df["session"].astype(str)
@@ -58,7 +60,7 @@ def build_trials(df):
     rest = df[df.label == "REST"]
     base = rest.groupby(["sess_id", "round"])[FLEX].mean()
     rest_noise = rest.groupby(["sess_id", "round"])[FLEX].std()
-    out = {k: [] for k in ["flex", "imu", "base", "y", "sess", "subj", "round", "trial"]}
+    out = {k: [] for k in ["flex", "imu", "base", "y", "sess", "subj", "round", "trial", "split"]}
     for (sid, tr), g in df[df.label != "REST"].groupby(["sess_id", "trial"]):
         g = g.sort_values("t_ms")
         key = (sid, g["round"].iloc[0])
@@ -72,6 +74,7 @@ def build_trials(df):
         out["base"].append(base.loc[key].values)
         out["y"].append(g.label.iloc[0]); out["sess"].append(sid)
         out["subj"].append(str(g.subject.iloc[0])); out["round"].append(key[1]); out["trial"].append(tr)
+        out["split"].append(str(g["split"].iloc[0]))
     for k in out:
         out[k] = np.array(out[k])
     out["rest_base"], out["rest_noise"], out["sensors"] = base, rest_noise, FLEX
@@ -130,3 +133,23 @@ def make_X(tr, calibrate, features, use_imu=False, sensors=None):
 
 def has_imu(tr):
     return tr["imu"].size > 0 and np.abs(tr["imu"]).sum() > 0
+
+
+def select(tr, mask):
+    """Subset of a build_trials() dict (per-trial arrays only)."""
+    mask = np.asarray(mask)
+    out = {k: (v[mask] if isinstance(v, np.ndarray) and len(v) == len(mask) else v) for k, v in tr.items()}
+    keep = set(out["sess"])
+    for k in ("rest_base", "rest_noise"):
+        if k in out:
+            out[k] = out[k][out[k].index.get_level_values(0).isin(keep)]
+    return out
+
+
+def development_only(tr, include_test=False):
+    """Drop held-out test participants so model development never sees them."""
+    if include_test or "split" not in tr or not np.any(tr["split"] == "test"):
+        return tr, ""
+    n = int(np.sum(tr["split"] == "test"))
+    return select(tr, tr["split"] != "test"), (f"{n} trials of held-out TEST participants excluded "
+                                               f"(evaluated only by train_test.py)")

@@ -16,6 +16,7 @@ python/features.py           calibration, smoothing, 40 flex (30 with 5 sensors)
 python/analyze.py            paper tables: drift, 2x2 ablation, IMU, learning curve, added-sensor
                              effect, per-trial table, latency
 python/ml_benchmark.py       23 ML / deep models, statistical tests, tuning, explainability
+python/train_test.py         final test: train on TRAIN participants, test on new TEST participants
 python/live_demo.py          real-time translation + latency measurement
 python/sensor_characterisation.py  bench test of one sensor: hysteresis, repeatability, noise, R range
 figures/                     circuit schematic (and script to redraw it)
@@ -77,6 +78,21 @@ series, with and without the IMU) and the multimeter values of R_flat / R_bent.
 cd python
 python collect_data.py --port COM5 --subject S1 --session 1 --rounds 10
 ```
+
+**Participant protocol (held-out test).**
+
+| Group | Participants | Command options | Letter order |
+|---|---|---|---|
+| Training | 5 (S1–S5) | `--split train --order alphabetical` | A, B, C, … , Z (identical for everyone) |
+| Test | 3 new people (T1–T3) | `--split test --order random` | random, new each round |
+
+```
+python collect_data.py --port COM5 --subject S1 --session 1 --split train --order alphabetical
+python collect_data.py --port COM5 --subject T1 --session 1 --split test  --order random
+```
+The program refuses to record a participant code in both groups. `analyze.py` and
+`ml_benchmark.py` use only the training participants (model development);
+the test participants are used once, by `train_test.py`.
 All 26 ASL letters in random order each round (J and Z are traced during a 2.5 s hold), with a
 2 s open-hand REST recording before each round (used for calibration). After every round the
 trials are listed and the operator can correct the letter actually signed (`7=V`) or discard a
@@ -92,7 +108,13 @@ known limitation of the static-window design.
 ```
 python analyze.py                                        # paper tables (drift, ablation, IMU, learning curve, latency)
 python ml_benchmark.py --tune
+python train_test.py                                     # final held-out-participant test
 ```
+`train_test.py` (default six models: Logistic Regression, KNN, RBF SVM, Random Forest, XGBoost,
+MLP; change with `--models`, list with `--list`) first runs leave-one-participant-out CV on the
+training participants and selects a model there, then fits every model once on all training data
+and evaluates it once on the test participants: accuracy, balanced accuracy, macro-F1, κ, top-3,
+per participant, per letter, McNemar, compute latency, confusion matrix (`results_test/`).
 Data are read from `data/` and results written to `results/` and `results_ml/` at the repository root (override with `--data` / `--out`).
 All evaluations use **leave-one-session-out** cross-validation with identical real labels.
 `analyze.py` also writes `tableF_sensor_configuration.csv` (5 fingers vs + abduction vs + elbow

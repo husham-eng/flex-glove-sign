@@ -51,7 +51,7 @@ from sklearn.metrics import (accuracy_score, balanced_accuracy_score, cohen_kapp
                              precision_recall_fscore_support, confusion_matrix,
                              adjusted_rand_score, normalized_mutual_info_score, top_k_accuracy_score)
 from xgboost import XGBClassifier
-from features import load_csvs, build_trials, make_X, has_imu, feature_names, SENSOR_SHORT
+from features import load_csvs, build_trials, development_only, make_X, has_imu, feature_names, SENSOR_SHORT
 from analyze import splits, plot_cm, md_table
 
 warnings.filterwarnings("ignore")
@@ -264,10 +264,13 @@ def main():
     ap.add_argument("--tune", action="store_true", help="nested hyper-parameter tuning (slower)")
     ap.add_argument("--no-deep", action="store_true")
     ap.add_argument("--epochs", type=int, default=150)
+    ap.add_argument("--include-test", action="store_true",
+                    help="also use held-out test participants (normally excluded)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
-    tr = build_trials(load_csvs(a.data))
+    tr, note = development_only(build_trials(load_csvs(a.data)), a.include_test)
+    if note: print(note)
     le = LabelEncoder().fit(tr["y"]); y = le.transform(tr["y"]); names = list(le.classes_)
     K = len(names)
     imu = has_imu(tr)
