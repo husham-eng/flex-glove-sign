@@ -30,7 +30,9 @@ Output (one session):
                                            the analysis always uses its correct_letter / valid columns.
 """
 import argparse, csv, glob, os, random, sys, time
+import numpy as np
 import serial
+from quality import check_round, report
 
 ALL_ASL = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 DYNAMIC = {"J", "Z"}
@@ -183,6 +185,7 @@ def main():
     print(f"OK: {len(test)} samples in 0.5 s, first = {test[0]}")
 
     trial_id = 0
+    ref_rest = None
     with open(path, "w", newline="") as fh, open(tpath, "w", newline="") as th:
         w, tw = csv.writer(fh), csv.writer(th)
         w.writerow(COLS); tw.writerow(TRIAL_COLS)
@@ -220,6 +223,12 @@ def main():
                              t["valid"], t["note"], len(t["rows"])] + [f"{m:.1f}" for m in t["means"]])
             fh.flush(); th.flush()
             print(f"Round {rnd} saved.")
+            rest_arr = np.array([r[1:1 + N_FLEX] for r in rest_rows], float).reshape(-1, N_FLEX)
+            if ref_rest is None and len(rest_arr):
+                ref_rest = rest_arr.mean(0)
+            ok = [t for t in trials if t["valid"] and t["rows"]]
+            samples = np.array([r[1:1 + N_FLEX] for t in ok for r in t["rows"]], float).reshape(-1, N_FLEX)
+            report(check_round(rest_arr, samples, np.array([t["means"] for t in ok]), ref_rest), rnd)
     ser.close()
     print("Saved:", path, "and", tpath)
 
