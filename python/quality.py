@@ -4,6 +4,7 @@ Glove quality checks, run after every round (collect_data.py) or on a saved sess
     python quality.py ../data/S1_sess2.csv            # report per round
     python quality.py ../data/S1_sess2.csv --last     # only the most recent round
     python quality.py ../data/S1_sess2.csv --discard 5 --reason "A2 wire open"   # exclude round 5
+    python quality.py ../data/S1_sess2.csv --discard-trials 129 130 --reason "A2 wire open"
 
 Detects the faults met with the prototype:
   RAIL      a channel near 0 or 1023            -> open wire / short to 5V or GND
@@ -100,17 +101,19 @@ if __name__ == "__main__":
     ap.add_argument("--last", action="store_true", help="check only the most recent round")
     ap.add_argument("--discard", type=int, nargs="+", metavar="ROUND",
                     help="mark these rounds invalid (valid = 0) in the matching *_trials.csv")
+    ap.add_argument("--discard-trials", type=int, nargs="+", metavar="TRIAL",
+                    help="mark only these trial numbers invalid")
     ap.add_argument("--reason", default="glove fault detected by quality check")
     a = ap.parse_args()
-    if a.discard:
+    if a.discard or a.discard_trials:
         tp = a.csv.replace(".csv", "_trials.csv")
         t = pd.read_csv(tp)
         t["note"] = t["note"].astype(object).where(t["note"].notna(), "")
-        m = t["round"].isin(a.discard)
+        m = t["round"].isin(a.discard or []) | t["trial"].isin(a.discard_trials or [])
         t.loc[m, "valid"] = 0
         t.loc[m, "note"] = "excluded: " + a.reason
         t.to_csv(tp, index=False)
-        print(f"{int(m.sum())} trials of round(s) {a.discard} marked invalid in {tp}; "
+        print(f"{int(m.sum())} trials marked invalid in {tp}; "
               f"valid trials now: {int(t.valid.sum())}")
         sys.exit(0)
     sys.exit(1 if check_file(a.csv, a.last) else 0)
