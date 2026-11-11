@@ -57,9 +57,12 @@ results/paper/               outputs of paper_results.py
 Why the two extra sensors: flexion sensors along the fingers cannot see finger *spreading*
 (U = index and middle together, V = apart), nor arm posture (G, H, P, Q, J, Z differ mainly by
 how the hand is held).
-- **Abduction sensor (A5):** lay it across the gap between the proximal phalanges of the
-  index and middle fingers on the back of the hand, glued/sewn at both ends; spreading the
-  fingers bends it.
+- **Abduction sensor (A5), tendon-driven:** the sensor is fixed at its base on the side of the
+  glove opposite the finger sensors; a thread tied to the index finger runs through two guide
+  channels (blue tubes in the prototype) to the sensor's free tip. Spreading the index away from
+  the middle finger pulls the thread and bends the sensor; with the fingers together it stays straight.
+![Prototype](docs/glove_prototype.png)
+
 - **Elbow sensor (A6):** along the back of the elbow inside a sleeve; it measures elbow flexion.
 
 ```
