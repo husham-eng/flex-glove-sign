@@ -1,0 +1,33 @@
+data,input,model,cross,cross_f1,within,T1,T1_f1
+sound,raw,RF,85.1,84.3,89.4,90.8,90.7
+sound,raw,SVM,84.6,83.4,89.6,90.0,89.9
+sound,raw,XGB,76.8,77.1,85.8,89.2,89.0
+sound,raw,LR,84.3,83.1,87.4,87.7,87.6
+sound,calibrated,RF,74.8,74.5,82.4,86.9,86.5
+sound,calibrated,SVM,78.7,78.0,85.5,86.9,86.5
+sound,calibrated,XGB,66.9,67.0,78.4,81.5,81.6
+sound,calibrated,LR,78.7,77.4,83.2,85.4,85.1
+sound,features,RF,84.0,83.4,90.7,90.0,89.9
+sound,features,SVM,78.7,78.8,86.8,88.5,88.4
+sound,features,XGB,78.8,78.8,86.8,90.0,89.6
+sound,features,LR,81.0,81.2,88.0,87.7,87.7
+sound,calibrated features,RF,76.7,76.4,84.0,90.0,90.0
+sound,calibrated features,SVM,70.8,71.0,81.3,84.6,83.7
+sound,calibrated features,XGB,69.4,70.1,82.1,83.8,83.3
+sound,calibrated features,LR,72.8,72.9,81.8,81.5,81.2
+with faulty S1-1,raw,RF,69.8,70.7,84.0,91.5,91.3
+with faulty S1-1,raw,SVM,66.0,67.6,83.1,88.5,88.5
+with faulty S1-1,raw,XGB,65.2,67.5,82.0,88.5,88.3
+with faulty S1-1,raw,LR,64.0,66.2,78.4,84.6,84.5
+with faulty S1-1,calibrated,RF,69.3,69.1,77.9,87.7,87.3
+with faulty S1-1,calibrated,SVM,70.5,70.3,78.5,83.1,83.1
+with faulty S1-1,calibrated,XGB,66.6,66.8,75.1,78.5,78.7
+with faulty S1-1,calibrated,LR,71.9,71.4,76.9,86.2,86.2
+with faulty S1-1,features,RF,67.8,69.9,85.5,88.5,88.3
+with faulty S1-1,features,SVM,66.5,69.0,83.5,88.5,88.7
+with faulty S1-1,features,XGB,63.2,64.8,83.9,88.5,88.6
+with faulty S1-1,features,LR,65.9,68.9,81.1,80.0,80.0
+with faulty S1-1,calibrated features,RF,71.4,71.3,80.6,87.7,88.1
+with faulty S1-1,calibrated features,SVM,69.7,70.1,78.7,83.8,83.4
+with faulty S1-1,calibrated features,XGB,67.7,68.2,79.1,85.4,85.4
+with faulty S1-1,calibrated features,LR,72.6,72.5,77.8,84.6,84.5

@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software or data, please cite it as below."
-title: "Flex-sensor sign-language glove: seven-sensor real-hardware data collection and machine-learning benchmark"
+title: "Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis"
 version: 1.0.0
 date-released: 2026-11-09
 license: MIT

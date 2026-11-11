@@ -1,0 +1,46 @@
+{
+  "dataset": {
+    "train_sessions": [
+      "S1_s2",
+      "S1_s3",
+      "S1_s4"
+    ],
+    "train_trials": 643,
+    "test_trials": 130,
+    "per_letter": [
+      23,
+      26
+    ]
+  },
+  "selected": {
+    "input": "raw",
+    "model": "RF",
+    "cross": 85.1
+  },
+  "T1": {
+    "correct": 118,
+    "n": 130,
+    "acc": 90.76923076923077,
+    "ci95": [
+      84.5573862873241,
+      94.64071056746543
+    ]
+  },
+  "T1_errors": {
+    "E->X": 2,
+    "R->U": 2,
+    "A->T": 1,
+    "U->R": 1,
+    "H->R": 1,
+    "X->N": 1,
+    "S->I": 1,
+    "Q->G": 1,
+    "C->O": 1,
+    "S->E": 1
+  },
+  "latency_ms": {
+    "window": 400,
+    "compute_median": 9.977741500051707,
+    "compute_p95": 14.142489900001463
+  }
+}

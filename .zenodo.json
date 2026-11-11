@@ -1,6 +1,6 @@
 {
-  "title": "Flex-sensor sign-language glove: seven-sensor real-hardware data collection and machine-learning benchmark",
-  "description": "Arduino firmware, data-collection protocol, preprocessing and a comprehensive machine-learning benchmark (linear, probabilistic, kernel, tree, bagging, boosting, neural, ensemble and deep temporal models, with statistical tests) for a seven-flex-sensor ASL fingerspelling glove (five finger sensors, an index-middle abduction sensor and an elbow sensor). Accompanies the IEEE PIC 2026 paper 'Enhancing Sign Language Communication Using Machine Learning and Smart Circuits'.",
+  "title": "Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis",
+  "description": "Firmware (Arduino Mega), guided data-collection software, automatic glove quality checks, the complete recorded dataset (4 sessions of participant S1, 1 held-out participant T1, a sensitivity session with a documented hardware fault, a pilot session and sensor bend tests) and the analysis code that reproduces every table and figure of the IEEE PIC 2026 paper 'Enhancing Sign Language Communication Using Machine Learning and Smart Circuits: A Real-Hardware Evaluation of a Seven-Sensor Flex Glove' (O. Alfahd). The glove has five finger-flexion sensors, an index-middle abduction sensor and an elbow sensor; all 26 ASL letters are recorded.",
   "upload_type": "software",
   "license": "MIT",
   "creators": [
@@ -10,12 +10,15 @@
     }
   ],
   "keywords": [
-    "sign language recognition",
-    "flex sensor",
-    "data glove",
-    "machine learning",
-    "Arduino",
     "ASL",
-    "hysteresis"
+    "ASL fingerspelling",
+    "Arduino",
+    "data glove",
+    "dataset",
+    "flex sensor",
+    "hysteresis",
+    "machine learning",
+    "quality control",
+    "sign language recognition"
   ]
 }

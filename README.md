@@ -1,12 +1,30 @@
-# Flex-sensor sign-language glove: real hardware + machine-learning benchmark
+# Flex-sensor sign-language glove: real hardware, data and machine learning
 
-Firmware, data-collection protocol, preprocessing and a comprehensive machine-learning
-benchmark for a seven-flex-sensor glove that recognises the 26 ASL fingerspelling letters
-(5 finger sensors + 1 index–middle abduction sensor + 1 elbow sensor, optional IMU).
+Firmware, data-collection protocol, recorded data, glove quality checks and machine-learning
+analysis for a seven-flex-sensor glove that recognises the 26 ASL fingerspelling letters
+(5 finger sensors + 1 index–middle abduction sensor + 1 elbow sensor; IMU input supported).
+
+**Author:** Dr. Othman Alfahd, Department of Biomedical Technology, Prince Sultan Military
+College of Health Sciences, Saudi Arabia (othman@psmchs.edu.sa)
+
 Accompanies the IEEE PIC 2026 paper *"Enhancing Sign Language Communication Using Machine
-Learning and Smart Circuits"* (O. Alfahd).
+Learning and Smart Circuits: A Real-Hardware Evaluation of a Seven-Sensor Flex Glove"*.
 
 <!-- After the first Zenodo release, paste the DOI badge here -->
+
+## Main results (real glove, all 26 letters)
+
+| Evaluation | Accuracy |
+|---|---|
+| Within session (leave-one-round-out), Random Forest, raw readings | 89.4% |
+| Across sessions after re-donning the glove (leave-one-session-out) | 85.1% |
+| Unseen user T1 (trained on S1 only) | 90.8% (95% CI 84.6–94.6%) |
+| Effect of the two added sensors (cross-session) | 74.7% → 85.1% |
+| End-to-end latency | about 420 ms |
+
+On sound hardware, rest-pose calibration and statistical features did not improve accuracy;
+wiring faults were the dominant real-world problem and are caught by `python/quality.py`.
+Run `python python/paper_results.py` to regenerate every table and figure of the paper from `data/`.
 
 ## Repository layout
 ```
@@ -21,8 +39,10 @@ python/live_demo.py          real-time translation + latency measurement
 python/sensor_characterisation.py  bench test of one sensor: hysteresis, repeatability, noise, R range
 python/bend_test.py          guided wiring check: straight/bent value, crosstalk, best resistor per channel
 python/quality.py            glove check after every round (open/short/loose wire, broken or flat sensor)
+python/paper_results.py      reproduces Tables II–V and Figs. 3–6 of the paper -> results/paper/
 figures/                     circuit schematic (and script to redraw it)
-data/                        raw recordings (see data/README.md)
+data/                        all recorded sessions, sensitivity and pilot data, sensor tests (data/README.md)
+results/paper/               outputs of paper_results.py
 ```
 
 ## 1. Hardware
