@@ -100,6 +100,22 @@ def record(ser, seconds):
     return rows
 
 
+def fresh_input(prompt):
+    """input() that first discards key presses typed ahead (a double or held Enter would
+    otherwise answer the next prompt and skip a letter)."""
+    try:
+        import msvcrt                      # Windows
+        while msvcrt.kbhit():
+            msvcrt.getwch()
+    except ImportError:
+        try:
+            import termios                 # Linux / macOS
+            termios.tcflush(sys.stdin, termios.TCIFLUSH)
+        except Exception:
+            pass
+    return input(prompt)
+
+
 def countdown(msg, seconds):
     sys.stdout.write(f"\r{msg:<45}")
     sys.stdout.flush()
@@ -204,7 +220,7 @@ def main():
         if mode == "w":
             w.writerow(COLS); tw.writerow(TRIAL_COLS)
         for rnd in range(start_round, a.rounds + 1):
-            cmd = input(f"\n=== Round {rnd}/{a.rounds}: Enter to start (q = quit) === ").strip().lower()
+            cmd = fresh_input(f"\n=== Round {rnd}/{a.rounds}: Enter to start (q = quit) === ").strip().lower()
             if cmd == "q":
                 break
             countdown("REST: open flat hand, palm forward ...", 1.0)
@@ -215,7 +231,7 @@ def main():
                 trial_id += 1
                 dyn = lab in DYNAMIC
                 if a.manual:
-                    input(f"\n[{rnd}] letter {lab}:  {HINTS.get(lab, '')}\n"
+                    fresh_input(f"\n[{rnd}] letter {lab}:  {HINTS.get(lab, '')}\n"
                           f"      form it{' (start position)' if dyn else ''}, then press Enter ...")
                     print(f"      >>> {'TRACE' if dyn else 'HOLD STILL'}  {lab}  <<<  recording")
                 else:
