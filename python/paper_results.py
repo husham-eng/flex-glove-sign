@@ -13,7 +13,7 @@ Outputs (results/paper/):
   table3_inputs.csv            Table III raw / calibrated / features / calibrated features
   table4_added_sensors.csv     Table IV  5 fingers vs + abduction vs + elbow vs all 7
   table5_unseen_user.csv       Table V   trained on S1, tested once on T1
-  learning_curve.csv           Fig. 6 data
+  learning_curve.csv           Fig. 5 data
   fig_fingerprint.png, fig_cm_T1.png, fig_learning_curve.png, fig_faults.png
   summary.json                 every number quoted in the text
 
@@ -168,7 +168,7 @@ def main():
     cb = fig.colorbar(im, fraction=0.046, pad=0.03); cb.ax.tick_params(labelsize=6); cb.set_label("Recall", fontsize=6)
     fig.tight_layout(); fig.savefig(os.path.join(a.out, "fig_cm_T1.png"), dpi=300); plt.close(fig)
 
-    # ---- Fig. 4 fingerprint (raw readings, S1 sound sessions)
+    # ---- Fig. 3 fingerprint (raw readings, S1 sound sessions)
     Xr = make_X(tr, False, False); ys = tr["y"][~T]
     openv = rb.mean().values
     M = np.array([Xr[~T][ys == l].mean(0) for l in L])
@@ -182,7 +182,7 @@ def main():
     cb = fig.colorbar(im, fraction=0.035, pad=0.02); cb.ax.tick_params(labelsize=6); cb.set_label("Bend (0 = open hand)", fontsize=6)
     fig.tight_layout(); fig.savefig(os.path.join(a.out, "fig_fingerprint.png"), dpi=300); plt.close(fig)
 
-    # ---- Fig. 6 learning curve
+    # ---- Fig. 5 learning curve
     rng = np.random.default_rng(0); res = []
     for n in [2, 4, 6, 8, 10, 12, 14]:
         accs = []
@@ -204,7 +204,7 @@ def main():
     ax.set_xticks(lc.iloc[:, 0]); ax.grid(axis="y", lw=.3, color="0.85")
     fig.tight_layout(); fig.savefig(os.path.join(a.out, "fig_learning_curve.png"), dpi=300); plt.close(fig)
 
-    # ---- Fig. 3 faults (raw session files)
+    # ---- Fig. 2 faults (raw session files)
     f1 = os.path.join(a.sensitivity, "S1_sess1.csv"); f2 = os.path.join(a.data, "S1_sess2.csv")
     if os.path.exists(f1) and os.path.exists(f2):
         fig, axs = plt.subplots(2, 1, figsize=(3.4, 3.0))

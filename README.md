@@ -39,7 +39,7 @@ python/live_demo.py          real-time translation + latency measurement
 python/sensor_characterisation.py  bench test of one sensor: hysteresis, repeatability, noise, R range
 python/bend_test.py          guided wiring check: straight/bent value, crosstalk, best resistor per channel
 python/quality.py            glove check after every round (open/short/loose wire, broken or flat sensor)
-python/paper_results.py      reproduces Tables II–V and Figs. 3–6 of the paper -> results/paper/
+python/paper_results.py      reproduces Tables II–V and Figs. 2–5 of the paper -> results/paper/
 figures/                     circuit schematic (and script to redraw it)
 data/                        all recorded sessions, sensitivity and pilot data, sensor tests (data/README.md)
 results/paper/               outputs of paper_results.py
