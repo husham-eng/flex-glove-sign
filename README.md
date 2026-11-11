@@ -4,7 +4,7 @@ Firmware, data-collection protocol, preprocessing and a comprehensive machine-le
 benchmark for a seven-flex-sensor glove that recognises the 26 ASL fingerspelling letters
 (5 finger sensors + 1 index–middle abduction sensor + 1 elbow sensor, optional IMU).
 Accompanies the IEEE PIC 2026 paper *"Enhancing Sign Language Communication Using Machine
-Learning and Smart Circuits"* (O. Alfahad).
+Learning and Smart Circuits"* (O. Alfahd).
 
 <!-- After the first Zenodo release, paste the DOI badge here -->
 
