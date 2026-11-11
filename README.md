@@ -10,7 +10,7 @@ College of Health Sciences, Saudi Arabia (othman@psmchs.edu.sa)
 Accompanies the IEEE PIC 2026 paper *"Enhancing Sign Language Communication Using Machine
 Learning and Smart Circuits: A Real-Hardware Evaluation of a Seven-Sensor Flex Glove"*.
 
-<!-- After the first Zenodo release, paste the DOI badge here -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24146212.svg)](https://doi.org/10.5281/zenodo.24146212)
 
 ## Main results (real glove, all 26 letters)
 
@@ -181,3 +181,7 @@ python live_demo.py --port COM5
 
 ## Citation
 See `CITATION.cff`. License: MIT.
+
+## How to cite
+
+Alfahd, O. (2026). *Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis* (v1.0.0) [Data set and software]. Zenodo. https://doi.org/10.5281/zenodo.24146212

@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software or data, please cite it as below."
 title: "Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis"
+doi: 10.5281/zenodo.24146212
 version: 1.0.0
 date-released: 2026-11-09
 license: MIT
