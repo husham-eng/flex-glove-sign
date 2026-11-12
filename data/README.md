@@ -2,7 +2,7 @@
 
 Real recordings from the seven-sensor flex glove used in the paper *"Enhancing Sign Language
 Communication Using Machine Learning and Smart Circuits: A Real-Hardware Evaluation of a
-Seven-Sensor Flex Glove"* (O. Alfahd, IEEE PIC 2026). Participants are identified by codes only.
+Seven-Sensor Flex Glove"* (O. Alfahad, IEEE PIC 2026). Participants are identified by codes only.
 
 ## Contents
 

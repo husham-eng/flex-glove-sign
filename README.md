@@ -4,7 +4,7 @@ Firmware, data-collection protocol, recorded data, glove quality checks and mach
 analysis for a seven-flex-sensor glove that recognises the 26 ASL fingerspelling letters
 (5 finger sensors + 1 index–middle abduction sensor + 1 elbow sensor; IMU input supported).
 
-**Author:** Dr. Othman Alfahd, Department of Biomedical Technology, Prince Sultan Military
+**Author:** Dr. Othman Alfahad, Department of Biomedical Technology, Prince Sultan Military
 College of Health Sciences, Saudi Arabia (othman@psmchs.edu.sa)
 
 Accompanies the IEEE PIC 2026 paper *"Enhancing Sign Language Communication Using Machine
@@ -187,4 +187,4 @@ See `CITATION.cff`. License: MIT.
 
 ## How to cite
 
-Alfahd, O. (2026). *Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis* (v1.0.0) [Data set and software]. Zenodo. https://doi.org/10.5281/zenodo.24146212
+Alfahad, O. (2026). *Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis* (v1.0.0) [Data set and software]. Zenodo. https://doi.org/10.5281/zenodo.24146212

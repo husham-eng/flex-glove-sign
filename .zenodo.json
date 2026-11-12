@@ -1,11 +1,11 @@
 {
   "title": "Seven-sensor flex glove for ASL fingerspelling: firmware, real recorded data and machine-learning analysis",
-  "description": "Firmware (Arduino Mega), guided data-collection software, automatic glove quality checks, the complete recorded dataset (4 sessions of participant S1, 1 held-out participant T1, a sensitivity session with a documented hardware fault, a pilot session and sensor bend tests) and the analysis code that reproduces every table and figure of the IEEE PIC 2026 paper 'Enhancing Sign Language Communication Using Machine Learning and Smart Circuits: A Real-Hardware Evaluation of a Seven-Sensor Flex Glove' (O. Alfahd). The glove has five finger-flexion sensors, an index-middle abduction sensor and an elbow sensor; all 26 ASL letters are recorded.",
+  "description": "Firmware (Arduino Mega), guided data-collection software, automatic glove quality checks, the complete recorded dataset (4 sessions of participant S1, 1 held-out participant T1, a sensitivity session with a documented hardware fault, a pilot session and sensor bend tests) and the analysis code that reproduces every table and figure of the IEEE PIC 2026 paper 'Enhancing Sign Language Communication Using Machine Learning and Smart Circuits: A Real-Hardware Evaluation of a Seven-Sensor Flex Glove' (O. Alfahad). The glove has five finger-flexion sensors, an index-middle abduction sensor and an elbow sensor; all 26 ASL letters are recorded.",
   "upload_type": "software",
   "license": "MIT",
   "creators": [
     {
-      "name": "Alfahd, Othman",
+      "name": "Alfahad, Othman",
       "affiliation": "Department of Biomedical Technology, Prince Sultan Military College of Health Sciences, Saudi Arabia"
     }
   ],
